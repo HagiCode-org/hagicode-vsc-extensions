@@ -4,13 +4,15 @@
   "description": "Open your HagiCode dashboard from Visual Studio Code.",
   "version": "0.0.1",
   "publisher": "hagicode",
+  "license": "MIT",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": ["Other"],
   "extensionKind": ["ui"],
   "main": "./extension.js",
-  "files": ["extension.js"],
+  "files": ["extension.js", "images/icon.png", "LICENSE"],
   "repository": {
     "type": "git",
     "url": "https://github.com/HagiCode-org/hagicode-vsc-extensions.git",

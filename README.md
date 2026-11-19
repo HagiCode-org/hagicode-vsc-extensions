@@ -1,13 +1,15 @@
 # HagiCode VS Code Extensions
 
-本仓库用于开发和维护 [HagiCode](https://hagicode.com) 的 Visual Studio Code 扩展。
+This repository develops and maintains the Visual Studio Code extensions for [HagiCode](https://hagicode.com).
 
-## 扩展
+## Extensions
 
-- [HagiCode](extensions/hagicode/README.md) 提供 `HagiCode: Open Dashboard` 命令，从 VS Code 在浏览器中打开本地或远程 HagiCode 实例。
+- [HagiCode](extensions/hagicode/README.md) adds the `HagiCode: Open Dashboard` command, which opens a local or remote HagiCode instance in your browser from VS Code.
 
-## 参与开发
+## Development
 
-在 VS Code 中打开本仓库根目录，按 `F5` 运行 `Run HagiCode Extension`，然后在扩展开发宿主的命令面板中执行 `HagiCode: Open Dashboard`。
+Open the repository root in VS Code and press `F5` to run `Run HagiCode Extension`. In the Extension Development Host, run `HagiCode: Open Dashboard` from the Command Palette.
 
-欢迎通过本仓库的 Issues 提出扩展需求和报告问题。新增扩展时，请在扩展自己的目录中添加 `README.md`，记录使用场景、安装步骤以及如何在 VS Code 中运行和调试。
+To install every extension into your local VS Code, run `scripts/install-local.sh`. Pass an extension folder name to install just one, for example `scripts/install-local.sh hagicode`.
+
+Use this repository's Issues to request extensions or report problems. When you add an extension, include a `README.md` in its folder that describes the use case, how to install it, and how to run and debug it in VS Code. Give the extension an `images/icon.png` (at least 128x128 px) and reference it from the `icon` field in `package.json`.

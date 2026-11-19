@@ -1,0 +1,95 @@
+name: Publish Extension
+
+# Publishes extensions/hagicode to the Visual Studio Marketplace with trusted publishing (OIDC).
+# No Marketplace PAT is stored: the Marketplace trusts this repository and this exact workflow
+# file, so keep the file name `publish.yml` (it is part of the trusted publishing policy).
+#
+#   push to main            -> pre-release channel, version X.Y.(1000+run) from the latest vX.Y.Z tag
+#   release published vX.Y.Z -> stable channel, version X.Y.Z
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - extensions/hagicode/**
+      - scripts/release-version.mjs
+      - .github/workflows/publish.yml
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  VSCE_SPEC: '@vscode/vsce@4.1.1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-preview:
+    if: github.event_name != 'release' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Resolve and stamp the pre-release version
+        id: version
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+        run: echo "version=$(node scripts/release-version.mjs preview "$RUN_NUMBER")" >> "$GITHUB_OUTPUT"
+      - name: Package (pre-release)
+        working-directory: extensions/hagicode
+        run: npx --yes "$VSCE_SPEC" package --no-dependencies --pre-release --out "$RUNNER_TEMP/hagicode.vsix"
+      - name: Publish (pre-release)
+        working-directory: extensions/hagicode
+        run: npx --yes "$VSCE_SPEC" publish --oidc --packagePath "$RUNNER_TEMP/hagicode.vsix"
+      - name: Summarize
+        if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version || 'n/a' }}
+          RESULT: ${{ job.status }}
+        run: echo "Marketplace pre-release $VERSION - $RESULT" >> "$GITHUB_STEP_SUMMARY"
+
+  publish-release:
+    if: github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Verify the stable tag and stamp the version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: echo "version=$(node scripts/release-version.mjs stable "$RELEASE_TAG")" >> "$GITHUB_OUTPUT"
+      - name: Package
+        working-directory: extensions/hagicode
+        run: npx --yes "$VSCE_SPEC" package --no-dependencies --out "$RUNNER_TEMP/hagicode.vsix"
+      - name: Publish
+        working-directory: extensions/hagicode
+        run: npx --yes "$VSCE_SPEC" publish --oidc --packagePath "$RUNNER_TEMP/hagicode.vsix"
+      - name: Summarize
+        if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version || 'n/a' }}
+          RESULT: ${{ job.status }}
+        run: echo "Marketplace stable $VERSION - $RESULT" >> "$GITHUB_STEP_SUMMARY"
