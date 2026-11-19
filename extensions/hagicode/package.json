@@ -1,0 +1,39 @@
+{
+  "name": "hagicode",
+  "displayName": "HagiCode",
+  "description": "Open your HagiCode dashboard from Visual Studio Code.",
+  "version": "0.0.1",
+  "publisher": "hagicode",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Other"],
+  "extensionKind": ["ui"],
+  "main": "./extension.js",
+  "files": ["extension.js"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HagiCode-org/hagicode-vsc-extensions.git",
+    "directory": "extensions/hagicode"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "hagicode.openDashboard",
+        "category": "HagiCode",
+        "title": "Open Dashboard"
+      }
+    ],
+    "configuration": {
+      "title": "HagiCode",
+      "properties": {
+        "hagicode.dashboardUrl": {
+          "type": "string",
+          "scope": "application",
+          "default": "http://localhost:36556",
+          "description": "HTTP or HTTPS URL of the HagiCode instance to open in your browser."
+        }
+      }
+    }
+  }
+}
